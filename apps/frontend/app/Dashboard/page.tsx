@@ -1,20 +1,16 @@
 "use client";
-import React, { useState, useEffect ,useMemo} from "react";
+import React, { useState,useMemo} from "react";
 import {
   ChevronDown,
   ChevronUp,
   Globe,
-  Moon,
-  Sun,
   Plus,
-  X,
 } from "lucide-react";
 import { useWebsites } from "@/hooks/useWebsites";
 import axios from "axios";
 import { BACKEND_URL } from "@/configs/config";
 import { useAuth } from "@clerk/nextjs";
-import dayjs from "dayjs"; // Ensure consistency in date formatting
-import { Button } from "@/components/ui/button";
+
 
 type UptimeStatus = "good" | "bad" | "unknown";
 
