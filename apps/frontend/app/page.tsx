@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
