@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +25,7 @@ function App() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
-              Monitor Your Website's Uptime with Confidence
+              Monitor Your Website &apos s Uptime with Confidence
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
               Get instant notifications when your website goes down. Monitor performance, uptime, and response times all in one place.
@@ -68,14 +68,14 @@ function App() {
               <Shield className="h-10 w-10 text-indigo-600 dark:text-indigo-400 mb-4" />
               <h3 className="text-xl font-semibold mb-4 dark:text-white">24/7 Monitoring</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Continuous monitoring from multiple locations worldwide to ensure your website's availability.
+                Continuous monitoring from multiple locations worldwide to ensure your website&aposs availability.
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm">
               <Clock className="h-10 w-10 text-indigo-600 dark:text-indigo-400 mb-4" />
               <h3 className="text-xl font-semibold mb-4 dark:text-white">Response Time Tracking</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Monitor your website's performance and get detailed insights about response times.
+                Monitor your website&aposs performance and get detailed insights about response times.
               </p>
             </div>
           </div>
