@@ -1,6 +1,5 @@
 "use client"
 import {
-    ClerkProvider,
     SignInButton,
     SignUpButton,
     SignedIn,
