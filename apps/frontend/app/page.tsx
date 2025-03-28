@@ -1,14 +1,12 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2, Moon, Sun } from 'lucide-react';
-import Link from 'next/link';
+import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 
 
 function App() {
   const Router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
