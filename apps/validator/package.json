@@ -1,0 +1,17 @@
+{
+  "name": "validator",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/bs58": "^4.0.4",
+    "bigint": "^0.4.2",
+    "bs58": "^6.0.0"
+  }
+}

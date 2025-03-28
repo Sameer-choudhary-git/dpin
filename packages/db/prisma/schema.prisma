@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+}
+
+model Website {
+  id      String        @id @default(uuid())
+  url     String
+  userId  String
+  tick    WebsiteTick[]
+  deleted Boolean       @default(false)
+}
+
+model Validator {
+  id            String        @id @default(uuid())
+  publicKey     String
+  location      String
+  ip            String
+  pendingPayout Float         @default(0)
+  tick          WebsiteTick[]
+  isPaidOut       Boolean           @default(false)
+  lockedAt        DateTime?  
+  transactions    Transactions[]
+}
+
+model WebsiteTick {
+  id          String        @id @default(uuid())
+  websiteId   String
+  validatorId String
+  createdAt   DateTime      @default(now())
+  status      WebsiteStatus
+  latency     Float
+  website     Website       @relation(fields: [websiteId], references: [id])
+  validator   Validator     @relation(fields: [validatorId], references: [id])
+}
+
+enum WebsiteStatus {
+  UP
+  DOWN
+}
+
+model Transactions{
+  id             String             @id @default(uuid())
+  amount         Int              
+  signature      String
+  validatorId    String
+  validator      Validator          @relation(fields: [validatorId], references: [id])
+  createdAt      DateTime           @default(now())
+  status         TransactionStatus  @default(Pending) //having as pending so that poller confirms it later
+  retryCount     Int                @default(0)
+}
+
+enum TransactionStatus {
+  Pending
+  Success
+  Failure
+}
