@@ -98,17 +98,7 @@ function CreateWebsiteModal({
 
 
 
-async function deleteWebsite(id: string) {
-  const {getToken} = useAuth();
-  try {
-    const token = await getToken(); 
-    await axios.delete(`${BACKEND_URL}/api/v1/website/${id}`, {
-      headers: { Authorization: token } 
-    });
-  } catch (error) {
-    console.error("Error while deleting website:", error);
-  }
-}
+
 
 
 function WebsiteCard({ website }: { website: ProcessedWebsite }) {
