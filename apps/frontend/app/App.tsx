@@ -2,6 +2,7 @@
 import React from 'react';
 import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2} from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'
 
 
 
@@ -36,11 +37,13 @@ function App() {
             </div>
           </div>
           <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"
-              alt="Dashboard"
-              className="rounded-lg shadow-2xl dark:opacity-90"
-            />
+            <Image
+  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"
+  alt="Dashboard"
+  width={800}
+  height={600}
+  className="rounded-lg shadow-2xl dark:opacity-90"
+/>
           </div>
         </div>
       </section>
