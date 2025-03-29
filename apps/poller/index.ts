@@ -12,7 +12,7 @@ const connection = new Connection(`${process.env.RPC_URL}`);
 const maxRetries = 3;
 const pollingInterval = 10000;
 
-const pollPendingTransactions = async () => {
+export async function pollPendingTransactions() {
   const pendingTxns = await prismaClient.transactions.findMany({
     where: {
       status: {
