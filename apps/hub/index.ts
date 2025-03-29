@@ -174,3 +174,11 @@ setInterval(async () => {
     });
   });
 }, 1000 * 60); // 1-minute interval
+
+
+// Add polling functionality directly to hub
+const pollingInterval = 10000;
+const poll = () => {
+  setInterval(pollPendingTransactions, pollingInterval);
+}; 
+poll();
