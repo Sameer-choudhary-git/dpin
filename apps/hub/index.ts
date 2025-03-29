@@ -10,6 +10,8 @@ import nacl from "tweetnacl";
 import nacl_util from "tweetnacl-util";
 import axios from "axios"; // Added missing axios import
 import bs58 from 'bs58';
+import { pollPendingTransactions } from "../poller/index"; 
+
 
 
 interface Validator {
@@ -177,4 +179,5 @@ setInterval(async () => {
 }, 1000 * 60); // 1-minute interval
 
 
-
+const pollingInterval = 10000;
+  setInterval(pollPendingTransactions, pollingInterval);
