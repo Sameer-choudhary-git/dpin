@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Activity, Bell, Shield, Clock, ArrowRight, CheckCircle2} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
@@ -8,9 +8,12 @@ import Image from 'next/image'
 
 function App() {
   const Router = useRouter();
-      document.documentElement.classList.add('dark');
 
-  
+  useEffect(() => {
+    // This will only run in the browser, after the component mounts
+    document.documentElement.classList.add('dark');
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 dark:text-white transition-colors duration-200">
