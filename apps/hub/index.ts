@@ -23,7 +23,7 @@ interface Validator {
 const availableValidators: Validator[] = [];
 const COST_PER_CHECK = 100;
 const CallBacks: { [callbackId: string]: (data: IncomingMessage) => void } = {}; // Changed from Map to an object
-
+const PORT = process.env.PORT || 8081;
 Bun.serve({
   fetch(req, server) {
     if (server.upgrade(req)) { // Fixed WebSocket upgrade logic
@@ -31,7 +31,7 @@ Bun.serve({
     }
     return new Response("Upgrade failed", { status: 500 });
   },
-  port: 8081,
+  port: PORT,
   websocket: {
     async message(ws: ServerWebSocket, message: string) {
       const data: IncomingMessage = JSON.parse(message);
