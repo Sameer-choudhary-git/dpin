@@ -141,7 +141,7 @@ setInterval(async () => {
 
   allWebsites.forEach((currentWebsite) => {
     availableValidators.forEach((currentValidator) => {
-      const callbackId = randomUUIDv7();
+const callbackId = crypto.randomUUID();
       
       currentValidator.socket.send(
         JSON.stringify({ type: "validate", data: { callbackId, url: currentWebsite.url , websiteId:currentWebsite.id  } })
