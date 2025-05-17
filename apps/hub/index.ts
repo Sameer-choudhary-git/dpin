@@ -29,6 +29,8 @@ export async function sendAlertEmail(
     text: string
 ) {
     try {
+      console.log('from:', process.env.EMAIL_USER);
+      console.log('password:', process.env.EMAIL_PASS);
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to,
