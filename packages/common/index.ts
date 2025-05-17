@@ -15,6 +15,7 @@ export interface ValidateIncoming {
     latency: number;
     websiteId: string;
     validatorId: string;
+    email: string;
 }
 export interface ValidateOutgoing {
     url: string;

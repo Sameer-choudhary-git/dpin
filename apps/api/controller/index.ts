@@ -38,6 +38,7 @@ export function authMiddleware(
 
 export async function makeWebsite(req: Request, res: Response) {
   try {
+    const email = req.body.email as string;
     const userId = req.userId as string;
     const url = req.body.url;
 
@@ -45,6 +46,7 @@ export async function makeWebsite(req: Request, res: Response) {
       data: {
         url: url,
         userId: userId,
+        email: email
       },
     });
     res.status(200).send({ id: response.id });
@@ -95,7 +97,7 @@ export async function getWebsiteStatus(req: Request, res: Response) {
 }
 
 export async function deleteWebsite(req: Request, res: Response) {
-  const websiteId = req.body.websiteId;
+  const websiteId = req.params.websiteId;
   const userId = req.userId;
   await prismaClient.website
     .update({
@@ -106,103 +108,68 @@ export async function deleteWebsite(req: Request, res: Response) {
       data: {
         deleted: true,
       },
-    })
-    .then((data) => {
-      res.status(200).send(data);
-    })
-    .catch((error) => {
+    }).catch((error) => {
+      console.log("Error in deleteWebsite:", error);
       res.status(500).send(error);
     });
 }
 
 export async function payOut(req: Request, res: Response) {
   const validatorId = req.params.validatorId;
-
-  const txn = await prismaClient.$transaction(async (prisma) => {
-    const validator = await prisma.validator.findUnique({
-      where: {
-        id: validatorId,
-      },
-      select: {
-        id: true,
-        pendingPayout: true,
-        publicKey: true,
-        lockedAt: true,
-      },
-    });
-
-    if (!validator) {
-      res.status(404).json({
-        message: "Validator not found",
-      });
-      return;
-    }
-
-    if (validator.lockedAt) {
-      res.json({
-        message: "Payout is still in process",
-      });
-      return;
-    }
-
-    if (validator.pendingPayout === 0) {
-      res.json({
-        message: "No payout left",
-      });
-      return;
-    }
-
-    await prisma.validator.update({
-      where: {
-        id: validatorId,
-      },
-      data: {
-        lockedAt: new Date(),
-      },
-    });
-    return validator;
-  });
-  if (!txn) return;
-
+  
   try {
-    const fromKeypair = Keypair.fromSecretKey(
-      Uint8Array.from(JSON.parse(privateKey!))
-    );
-    const toPublicKey = new PublicKey(txn.publicKey);
-    const amount = txn.pendingPayout * 1000000;
-
-    const transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: fromKeypair.publicKey,
-        toPubkey: toPublicKey,
-        lamports: amount,
-      })
-    );
-
-    const signature = await sendAndConfirmTransaction(connection, transaction, [
-      fromKeypair,
-    ]);
-    await prismaClient.validator.update({
-      where: { id: validatorId },
-      data: {
-        lockedAt: null,
-        transactions: {
-          create: {
-            amount: amount,
-            signature: signature,
-          } 
+    const txn = await prismaClient.$transaction(async (prisma) => {
+      const validator = await prisma.validator.findUnique({
+        where: { id: validatorId },
+        select: {
+          id: true,
+          pendingPayout: true,
+          publicKey: true,
+          lockedAt: true,
         },
-      },
+      });
+      
+      if (!validator) {
+        return { error: "Validator not found", status: 404 };
+      }
+      
+      if (validator.lockedAt) {
+        return { error: "Payout is still in process", status: 200 };
+      }
+      
+      if (validator.pendingPayout === 0) {
+        return { error: "No payout left", status: 200 };
+      }
+      
+      const transaction = await prisma.transactions.create({
+        data: {
+          validatorId: validator.id,
+          amount : validator.pendingPayout , 
+          signature: "", 
+          status: "Pending",
+        },
+      });
+      
+      await prisma.validator.update({
+        where: { id: validatorId },
+        data: { lockedAt: new Date() },
+      });
+      
+      return { transaction, validator, status: 201 };
     });
-
-    res.json({
-      message: "Payout Successful with signature: (actually pending)",
-      signature,
+    
+    if (txn.error) {
+      return res.status(txn.status).json({ message: txn.error });
+    }
+    
+    // Successful transaction creation
+    res.status(txn.status).json({
+      message: "Payout initiated successfully",
+      transactionId: txn.transaction?.id
     });
-  } catch (e) {
-    console.log("Error processing payout", e);
-    res.status(500).json({
-      messsage: "Error processing payout",
-    });
+    
+  } catch (error) {
+    console.error("Error in payout process:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 }

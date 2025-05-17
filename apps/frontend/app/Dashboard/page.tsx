@@ -1,16 +1,11 @@
 "use client";
-import React, { useState,useMemo} from "react";
-import {
-  ChevronDown,
-  ChevronUp,
-  Globe,
-  Plus,
-} from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { ChevronDown, ChevronUp, Globe, Plus, Trash2 } from "lucide-react";
 import { useWebsites } from "@/hooks/useWebsites";
 import axios from "axios";
 import { BACKEND_URL } from "@/configs/config";
-import { useAuth } from "@clerk/nextjs";
-
+import { useAuth, useUser } from "@clerk/nextjs";
+import DashboardStats from "@/components/DashboardStats";
 
 type UptimeStatus = "good" | "bad" | "unknown";
 
@@ -24,11 +19,11 @@ interface ProcessedWebsite {
   uptimeTicks: UptimeStatus[];
 }
 
-
-
 function StatusCircle({ status }: { status: UptimeStatus }) {
   return (
-    <div className={`w-3 h-3 rounded-full ${status === 'good' ? 'bg-green-500' : status === 'bad' ? 'bg-red-500' : 'bg-gray-500'}`} />
+    <div
+      className={`w-3 h-3 rounded-full ${status === "good" ? "bg-green-500" : status === "bad" ? "bg-red-500" : "bg-gray-500"}`}
+    />
   );
 }
 
@@ -39,7 +34,11 @@ function UptimeTicks({ ticks }: { ticks: UptimeStatus[] }) {
         <div
           key={index}
           className={`w-8 h-2 rounded ${
-            tick === 'good' ? 'bg-green-500' : tick === 'bad' ? 'bg-red-500' : 'bg-gray-500'
+            tick === "good"
+              ? "bg-green-500"
+              : tick === "bad"
+                ? "bg-red-500"
+                : "bg-gray-500"
           }`}
         />
       ))}
@@ -96,13 +95,19 @@ function CreateWebsiteModal({
   );
 }
 
-
-
-
-
-
-function WebsiteCard({ website }: { website: ProcessedWebsite }) {
+function WebsiteCard({ website, onDelete }: { website: ProcessedWebsite; onDelete: (id: string) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent toggle expansion
+    setIsDeleting(true);
+    try {
+      await onDelete(website.id);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
@@ -120,7 +125,8 @@ function WebsiteCard({ website }: { website: ProcessedWebsite }) {
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-sm text-gray-600 dark:text-gray-300">
-            {website.uptimePercentage.toFixed(1)}% uptime latency: {website.latency}ms
+            {website.uptimePercentage.toFixed(1)}% uptime latency:{" "}
+            {website.latency}ms
           </span>
           {isExpanded ? (
             <ChevronUp className="w-5 h-5 text-gray-400 dark:text-gray-500" />
@@ -131,82 +137,111 @@ function WebsiteCard({ website }: { website: ProcessedWebsite }) {
       </div>
 
       {isExpanded && (
-          <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="mt-3">
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                 Last 30 minutes status:
-              </p>
-              <UptimeTicks ticks={website.uptimeTicks} />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              Last 30 minutes status:
+            </p>
+            <UptimeTicks ticks={website.uptimeTicks} />
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Last checked: {website.lastChecked}
             </p>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
           </div>
-          
+        </div>
       )}
     </div>
   );
 }
 
-
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { websites, fetchWebsites } = useWebsites();
   const { getToken } = useAuth();
+  const { user } = useUser();
+  
+  const handleDeleteWebsite = async (websiteId: string) => {
+    const token = await getToken();
+    try {
+      await axios.delete(`${BACKEND_URL}/api/v1/website/${websiteId}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      // Refresh the website list after deletion
+      fetchWebsites();
+    } catch (error) {
+      console.error("Error deleting website:", error);
+      // You could add error handling UI here
+    }
+  };
+
   const processedWebsites = useMemo(() => {
     return websites.map((website) => {
       // Ensure website.tick is defined before using it
       const ticks = website.tick ?? [];
-  
+
       // Sort ticks by creation time
       //it will sort ticks by creation time in decreasing order
-      const sortedTicks = [...ticks].sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      const sortedTicks = [...ticks].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       const latency = sortedTicks[0]?.latency ?? 999;
-  
+
       // Get the most recent 30 minutes of ticks
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      const recentTicks = sortedTicks.filter((tick) =>
-        new Date(tick.createdAt) > thirtyMinutesAgo
+      const recentTicks = sortedTicks.filter(
+        (tick) => new Date(tick.createdAt) > thirtyMinutesAgo
       );
 
-  
       // Aggregate ticks into 3-minute windows (10 windows total)
       const windows: UptimeStatus[] = [];
-  
+
       for (let i = 0; i < 10; i++) {
         const windowStart = new Date(Date.now() - (i + 1) * 3 * 60 * 1000);
         const windowEnd = new Date(Date.now() - i * 3 * 60 * 1000);
-  
+
         const windowTicks = recentTicks.filter((tick) => {
           const tickTime = new Date(tick.createdAt);
           return tickTime >= windowStart && tickTime < windowEnd;
         });
-  
+
         // Window is considered up if majority of ticks are up
-        const upTicks = windowTicks.filter((tick) => tick.status === "UP").length;
+        const upTicks = windowTicks.filter(
+          (tick) => tick.status === "UP"
+        ).length;
         windows[9 - i] =
           windowTicks.length === 0
             ? "unknown"
             : upTicks / windowTicks.length >= 0.5
-            ? "good"
-            : "bad";
+              ? "good"
+              : "bad";
       }
       console.log(windows);
       // Calculate overall status and uptime percentage
       const totalTicks = sortedTicks.length;
       const upTicks = sortedTicks.filter((tick) => tick.status === "UP").length;
-      const uptimePercentage = totalTicks === 0 ? 100 : (upTicks / totalTicks) * 100;
-  
+      const uptimePercentage =
+        totalTicks === 0 ? 100 : (upTicks / totalTicks) * 100;
+
       // Get the most recent status
-      const currentStatus = windows[windows.length-1];
-  
+      const currentStatus = windows[windows.length - 1];
+
       // Format the last checked time
       const lastChecked = sortedTicks[0]
         ? new Date(sortedTicks[0].createdAt).toLocaleTimeString()
-        : 'Never';
-  
+        : "Never";
+
       return {
         id: website.id,
         url: website.url,
@@ -218,7 +253,6 @@ function App() {
       };
     });
   }, [websites]);
-  
 
   
 
@@ -241,8 +275,12 @@ function App() {
         </div>
 
         <div className="space-y-4">
-        {processedWebsites.map((website) => (
-            <WebsiteCard key={website.id} website={website} />
+          {processedWebsites.map((website) => (
+            <WebsiteCard 
+              key={website.id} 
+              website={website} 
+              onDelete={handleDeleteWebsite}
+            />
           ))}
         </div>
       </div>
@@ -252,11 +290,12 @@ function App() {
         onClose={async (url) => {
           if (!url) return setIsModalOpen(false);
           const token = await getToken();
+
           setIsModalOpen(false);
           axios
             .post(
               `${BACKEND_URL}/api/v1/website`,
-              { url },
+              { url, email: user?.primaryEmailAddress?.emailAddress },
               { headers: { Authorization: token } }
             )
             .then(fetchWebsites)
@@ -268,5 +307,3 @@ function App() {
 }
 
 export default App;
-
-

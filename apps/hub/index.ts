@@ -8,9 +8,13 @@ import { prismaClient } from "db/client";
 import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import nacl_util from "tweetnacl-util";
-import axios from "axios"; // Added missing axios import
+import axios from "axios"; 
 import bs58 from 'bs58';
 import { pollPendingTransactions } from "../poller/index"; 
+import crypto from "crypto"; 
+import { sendAlertEmail } from "./utils/index"; 
+
+
 
 
 
@@ -102,15 +106,6 @@ async function signupHandler(ws: ServerWebSocket, data: SignupIncomnig) {
   availableValidators.push({ socket: ws, publicKey: Response.publicKey, validatorId: Response.id });
 }
 
-// async function verifyMessage(message: string, publicKey: string, signature: string) {
-//   console.log(`Verifying message for ${publicKey}`);
-//   const messageBytes = nacl_util.decodeUTF8(message);
-//   return nacl.sign.detached.verify(
-//     messageBytes,
-//     new Uint8Array(JSON.parse(signature)),
-//     new PublicKey(publicKey).toBytes()
-//   );
-// }
 async function verifyMessage(message: string, publicKey: string, signature: string) {
   try {
   
@@ -136,19 +131,21 @@ async function verifyMessage(message: string, publicKey: string, signature: stri
     return false;
   }
 }
+
+
 setInterval(async () => {
   const allWebsites = await prismaClient.website.findMany({ where: { deleted: false } });
 
   allWebsites.forEach((currentWebsite) => {
     availableValidators.forEach((currentValidator) => {
-const callbackId = crypto.randomUUID();
+      const callbackId = crypto.randomUUID();
       
       currentValidator.socket.send(
-        JSON.stringify({ type: "validate", data: { callbackId, url: currentWebsite.url , websiteId:currentWebsite.id  } })
+        JSON.stringify({ type: "validate", data: { callbackId, url: currentWebsite.url , websiteId:currentWebsite.id, email:currentWebsite.email  } })
       );
       CallBacks[callbackId] = async (data: IncomingMessage) => {
         const realData = data.data as ValidateIncoming;
-        const { status, latency, websiteId, validatorId, signedMessage } = realData;
+        const { status, latency, websiteId, validatorId, signedMessage,email } = realData;
         
         // Use the same message format for verification
         const verificationMessage = `Validating ${currentWebsite.url} for ${callbackId}, ${currentValidator.publicKey}`;
@@ -173,11 +170,27 @@ const callbackId = crypto.randomUUID();
             data: { pendingPayout: { increment: COST_PER_CHECK } },
           });
         });
+        if(status === "DOWN" && email !== "" ){
+          emailHandler(currentWebsite);
+        }
       };
     });
   });
 }, 1000 * 60); // 1-minute interval
 
+async function emailHandler(website: { id: string; url: string ,email:string}) {
+  const websiteId = website.id;
+  const websiteUrl = website.url;
+  const websiteEmail = website.email;
+   
+   await sendAlertEmail(
+    website.email,
+    `⚠️Alert: ${website.url} is down`,
+    `Website ${website.url} is reporting status Down`
+    );
+  
+}
+
 
 const pollingInterval = 10000;
-  setInterval(pollPendingTransactions, pollingInterval);
+setInterval(pollPendingTransactions, pollingInterval);

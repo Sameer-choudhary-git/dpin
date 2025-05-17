@@ -1,0 +1,16 @@
+{
+  "name": "utils",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "nodemailer": "^6.10.0"
+  }
+}
