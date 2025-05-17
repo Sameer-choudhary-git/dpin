@@ -5,7 +5,6 @@ import { useWebsites } from "@/hooks/useWebsites";
 import axios from "axios";
 import { BACKEND_URL } from "@/configs/config";
 import { useAuth, useUser } from "@clerk/nextjs";
-import DashboardStats from "@/components/DashboardStats";
 
 type UptimeStatus = "good" | "bad" | "unknown";
 
