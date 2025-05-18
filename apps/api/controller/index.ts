@@ -22,7 +22,13 @@ export function authMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers["authorization"];
+  let token: string | undefined;
+  try {
+    token = req.headers["authorization"];
+  } catch (error) {
+    console.log("Error in authMiddleware:", error);
+    return res.status(500).send("Internal Server Error");
+  }
   if (!token) {
     console.log("No token provided");
     return res.status(401).send("Unauthorized");
