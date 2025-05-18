@@ -24,11 +24,14 @@ export function authMiddleware(
 ) {
   const token = req.headers["authorization"];
   if (!token) {
+    console.log("No token provided");
     return res.status(401).send("Unauthorized");
+    
   }
 
   const decode = jwt.verify(token, JWT_PUBLIC_KEY);
   if (!decode || !decode.sub) {
+    console.log("Invalid token");
     return res.status(401).send("Unauthorized");
   }
   req.userId = decode.sub as string;
