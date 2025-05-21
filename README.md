@@ -1,84 +1,125 @@
-# Turborepo starter
+# 🌐 DecentraPulse
 
-This Turborepo starter is maintained by the Turborepo core team.
+Decentralized Uptime & Security Monitoring Platform
 
-## Using this example
+diUptime is a Web3-powered SaaS platform that provides decentralized, transparent, and secure uptime monitoring for websites. It leverages a global network of community-run validators and offers Solana-based incentives for their participation. This eliminates central points of failure and brings trustless uptime insights to users and developers across the web.
+# 🚀 Key Features
 
-Run the following command:
+    🛰️ Decentralized infrastructure — no single server dependency
 
-```sh
-npx create-turbo@latest
-```
+    🔐 Security-first monitoring — beyond uptime: includes DDoS pattern checks, SSL, headers, etc.
 
-## What's inside?
+    🌍 Global validator network — real-world, regionally distributed checks
 
-This Turborepo includes the following packages/apps:
+    💸 Solana-based validator rewards
 
-### Apps and Packages
+    ⚙️ Custom alert triggers for developers
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+    🧩 API/SDK integration for dApps (coming soon)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+    🗃 Public, verifiable logs (on-chain/IPFS/Arweave)
 
-### Utilities
+# 🛠 How It Works
 
-This Turborepo has some additional tools already setup for you:
+    User Submission:
+    Website owners register their URLs via the platform dashboard.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+    Validator Participation:
+    Anyone can become a validator by installing our Firefox extension (Chrome and mobile app coming soon). Validators receive randomly assigned websites to test.
 
-### Build
+    Automated Monitoring:
+    Validators check:
 
-To build all apps and packages, run the following command:
+        Response time
 
-```
-cd my-turborepo
-pnpm build
-```
+        Latency
 
-### Develop
+        SSL certificate status
 
-To develop all apps and packages, run the following command:
+        HTTP headers
 
-```
-cd my-turborepo
-pnpm dev
-```
+        Signs of potential DDoS attacks
 
-### Remote Caching
+    Decentralized Validation:
+    Results are verified using multi-validator consensus.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+    Solana Rewards:
+    Validators receive SOL for every valid check, using @solana/web3.js.
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+    Payout Threshold:
+    Validators can withdraw rewards after reaching a minimum balance.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+    Transparency Layer:
+    Monitoring logs can be anchored on-chain or stored in IPFS/Arweave.
 
-```
-cd my-turborepo
-npx turbo login
-```
+# 🧠 DDoS Detection Logic
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+    Multi-Metric Detection:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+        3× RPS spike
 
-```
-npx turbo link
-```
+            30% error rate (5xx)
 
-## Useful Links
+        Latency 2–3× over baseline
 
-Learn more about the power of Turborepo:
+        Geo/IP skew (90% traffic from 3 IPs/ASNs)
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+        Low entropy in user-agent/header/TLS fingerprint
+
+    Consensus Threshold:
+
+        If 5 of 7 validators report anomalies in a short time window → mark as DDoS
+
+# 🧱 Architecture
+
+    Hub (backend): Built in TypeScript + Prisma/PostgreSQL
+
+    Validator extension: Browser extension (JavaScript) with auto-check logic
+
+    Smart contracts (Solana): Handles validator rewards, payout thresholds, and proof verification
+
+    Planned: SKALE integration for gas-free validator proof submissions
+
+# 📈 Why Use DecentraPulse?
+
+    No central point of failure
+
+    Community-driven monitoring from diverse geolocations
+
+    Real-time public logs for transparency
+
+    Lower infrastructure costs for early-stage or Web3-native products
+
+    Incentivized participation model
+
+# 🌍 Future Plans
+
+    ✅ Open source codebase with contribution guidelines
+
+    ⛓ Smart contract migration for validator proofs + rewards
+
+    🔐 DAO-based validator slashing
+
+    📱 Mobile app for site owners
+
+    🔔 Custom webhook + SLA dashboard for Web3 devs
+
+    ⚡ Multi-chain validator support (Solana, EVM, L2s)
+
+
+
+# 👋 Contributing
+
+We're preparing for open-source launch! If you're interested in contributing:
+
+    Follow the repo
+
+    Star & share the project
+
+    Stay tuned for “good first issue” tags when we launch the repo publicly
+
+# 📬 Contact
+
+Made by Sameer
+DMs open for collaboration, feedback, and ideas!
+Email: Sameer.officialwork@gmail.com
